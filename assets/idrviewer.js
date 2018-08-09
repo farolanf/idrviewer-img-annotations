@@ -41,6 +41,7 @@ IDRViewer.on('ready', function () {
   
   loadStyle('assets/annotator-imgselect-0.2.3/demo/css/annotator.css');
   loadStyle('assets/annotator-imgselect-0.2.3/src/jquery.imgareaselect-0.9.10/css/imgareaselect-default.css');
+  loadStyle('assets/idrviewer.annot.css');
   
   loadScript('assets/jquery.min.js', false);
   loadScript('assets/annotator-imgselect-0.2.3/demo/js/annotator.min.js', false);
