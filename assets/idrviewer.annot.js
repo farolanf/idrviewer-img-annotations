@@ -1,5 +1,14 @@
 (function ($) {
 
+  // fix overlay blocking pointer input
+  document.querySelectorAll('[id^="pg"][id$="Overlay"]').forEach(function (el) {
+    el.style.zIndex = 0;
+  });
+  
+  $('.page img').each(function (i, img) {
+    initImg(img);
+  })
+
   IDRViewer.on('pageload', function (data) {
     initPage(data.page);
   });
@@ -8,7 +17,9 @@
     // fix overlay blocking pointer input
     document.querySelector('#pg' + page + 'Overlay').style.zIndex = 0;
 
-    initImgSelect($('.page img').toArray())
+    $('#page' + page + ' img').each(function (i, img) {
+      initImg(img);
+    });
 
     const pageEl = document.querySelector('#pg' + page);
 
@@ -19,37 +30,51 @@
         obj.contentDocument.querySelectorAll('image').forEach(function (image) {
           const img = document.createElement('img');
           img.src = page + '/' + image.getAttribute('xlink:href');
-          img.style.position = 'absolute';
-          img.style.width = image.width.baseVal.value + 'px';
-          img.style.height = image.height.baseVal.value + 'px';
+          img.width = image.width.baseVal.value;
+          img.height = image.height.baseVal.value;
+
+          const x = image.x.baseVal.value + 'px';
+          const y = image.y.baseVal.value + 'px';
+          const w = image.width.baseVal.value + 'px';
+          const h = image.height.baseVal.value + 'px';
+
+          const imgContainer = initImgContainer(img, x, y, w, h);
           
-          const imgContainer = document.createElement('div');
-          imgContainer.style.position = 'absolute';
-          imgContainer.style.left = image.x.baseVal.value + 'px';
-          imgContainer.style.top = image.y.baseVal.value + 'px';
-          imgContainer.style.width = img.style.width;
-          imgContainer.style.height = img.style.height;
-          
-          imgContainer.appendChild(img);
           pageEl.appendChild(imgContainer);
-          initImgSelect([imgContainer])
+          initImgSelect(img)
         });
       }
     });
   }
 
-  function initImgSelect (elements) {
-    elements.forEach(initEl);
+  function initImg (img) {
+    const style = getComputedStyle(img);
+    initImgContainer(img, style.left, style.top, 0, 0, true);
+    initImgSelect(img);
+  }
 
-    function initEl (el) {
-      if (el.__annotatorApp) return;
-      const app = el.__annotatorApp = new annotator.App();
-      app.include(annotator.storage.debug)
-        .include(annotator.ui.main, {
-          element: el
-        }).include(annotatorImageSelect, {
-          element: $(el)
-        }).start();
-    }
+  function initImgContainer (img, x, y, w, h, replace) {
+    img.style.position = 'unset';
+    img.style.display = 'block';
+    const imgContainer = document.createElement('div');
+    imgContainer.style.position = 'absolute';
+    imgContainer.style.left = x;
+    imgContainer.style.top = y;
+    w && (imgContainer.style.width = w);
+    h && (imgContainer.style.height = h);
+    replace && img.parentNode.insertBefore(imgContainer, img);
+    imgContainer.appendChild(img);
+    return imgContainer;
+  }
+
+  function initImgSelect (el) {
+    if (el.__annotatorApp) return;
+    const app = el.__annotatorApp = new annotator.App();
+    app.include(annotator.storage.debug)
+      .include(annotator.ui.main, {
+        element: el.parentElement
+      }).include(annotatorImageSelect, {
+        element: $(el)
+      }).start();
   }
 })(jQuery);
