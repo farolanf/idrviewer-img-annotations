@@ -1,5 +1,43 @@
 (function ($) {
 
+  // id for sample storage
+  let _id = 1;
+
+  function id () {
+    return _id++;
+  }
+  
+  const options = {
+    storage: {
+      create (annotation) {
+        console.log('create', annotation);
+        annotation.id = id();
+        return annotation;
+      },
+      update (annotation) {
+        console.log('update', annotation);
+        return annotation;
+      },
+      delete (annotation) {
+        console.log('delete', annotation);
+        return annotation;
+      },
+      query (queryObj) {
+        console.log('query', queryObj);
+        return {
+          results: [],
+          meta: {
+            total: 0
+          }
+        }
+      }
+    }
+  }
+  
+  IDRViewer.annotInit = function (opts) {
+    Object.assign(options, opts);
+  }
+
   // fix overlay blocking pointer input
   document.querySelectorAll('[id^="pg"][id$="Overlay"]').forEach(function (el) {
     el.style.zIndex = 0;
@@ -67,14 +105,29 @@
     return imgContainer;
   }
 
+  function annotStorage () {
+    return Object.assign({}, options.storage, {
+      configure (registry) {
+        registry.registerUtility(this, 'storage');
+      },
+    });
+  }
+
   function initImgSelect (el) {
     if (el.__annotatorApp) return;
     const app = el.__annotatorApp = new annotator.App();
-    app.include(annotator.storage.debug)
+    app.include(annotStorage)
       .include(annotator.ui.main, {
         element: el.parentElement
       }).include(annotatorImageSelect, {
         element: $(el)
-      }).start();
+      }).start()
+      .then(function () {
+        app.annotations.load({
+          src: el.src
+        });
+      });
   }
+
+  IDRViewer.fire('annotReady');
 })(jQuery);
