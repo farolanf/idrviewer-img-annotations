@@ -38,14 +38,12 @@
     Object.assign(options, opts);
   }
 
-  // fix overlay blocking pointer input
-  document.querySelectorAll('[id^="pg"][id$="Overlay"]').forEach(function (el) {
-    el.style.zIndex = 0;
+  // process current page
+  $('.page').each(function (i, el) {
+    if (!$('object', el).length) return;
+    const page = el.id.match(/\d+/);
+    initPage(page);
   });
-  
-  $('.page img').each(function (i, img) {
-    initImg(img);
-  })
 
   IDRViewer.on('pageload', function (data) {
     initPage(data.page);
