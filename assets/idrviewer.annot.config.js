@@ -50,7 +50,6 @@ IDRViewer.on('annotReady', function () {
         },
         query (queryObj) {
           // return annotations filtered by queryObj.src
-          // or simply just return all annotations (slow)
           const results = toArray().filter(function (annotation) {
             return annotation.image_selection.uri === queryObj.src ||
               annotation.image_selection.src === queryObj.src
