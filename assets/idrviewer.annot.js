@@ -23,7 +23,6 @@
         return annotation;
       },
       query (queryObj) {
-        console.log('query', queryObj);
         return {
           results: [],
           meta: {
@@ -54,7 +53,9 @@
     document.querySelector('#pg' + page + 'Overlay').style.zIndex = 0;
 
     $('#page' + page + ' img').each(function (i, img) {
-      initImg(img);
+      img.onload = function () {
+        initImg(this);
+      }
     });
 
     const pageEl = document.querySelector('#pg' + page);
